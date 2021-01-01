@@ -28,7 +28,7 @@ RAM bool temp_C_or_F;
 RAM bool blinking_smiley = false;
 RAM bool comfort_smiley = true;
 RAM bool show_batt_enabled = true;
-RAM bool advertising_type = false;//Custom or Mi Advertising (true)
+RAM bool advertising_type = true;//Custom or Mi Advertising (true)
 RAM uint8_t advertising_interval = 6;//advise new values - multiply by 10 for value
 RAM uint8_t measure_interval = 10;//time = loop interval * factor (def: about 7 * X)
 RAM int8_t temp_offset;
@@ -42,7 +42,7 @@ RAM uint16_t comfort_y[] = {2000, 1980, 3200, 6000, 8200, 8600, 7700, 3800};
 _attribute_ram_code_ bool is_comfort(int16_t t, uint16_t h) {
     bool c = 0;
     uint8_t npol = sizeof(comfort_x);
-    for (uint8_t i = 0, j = npol - 1; i < npol; j = i++) 
+    for (uint8_t i = 0, j = npol - 1; i < npol; j = i++)
     {
       if ((
         (comfort_y[i] < comfort_y[j]) && (comfort_y[i] <= h) && (h <= comfort_y[j]) &&
@@ -58,9 +58,9 @@ _attribute_ram_code_ bool is_comfort(int16_t t, uint16_t h) {
 
 void user_init_normal(void){//this will get executed one time after power up
 	random_generator_init();  //must
-	init_ble();	
+	init_ble();
 	init_sensor();
-	init_lcd();	
+	init_lcd();
 	init_flash();
 	show_atc_mac();
 	battery_mv = get_battery_mv();
@@ -73,9 +73,9 @@ _attribute_ram_code_ void user_init_deepRetn(void){//after sleep this will get e
 	blc_ll_recoverDeepRetention();
 }
 
-void main_loop(){	
+void main_loop(){
 	if((clock_time()-last_delay) > 5000*CLOCK_SYS_CLOCK_1MS){//main loop delay
-	
+
 		if((clock_time()-last_battery_delay) > 5*60000*CLOCK_SYS_CLOCK_1MS){//Read battery delay
 			battery_mv = get_battery_mv();
 			battery_level = get_battery_level(get_battery_mv());
@@ -83,19 +83,19 @@ void main_loop(){
 		}
 
 		if(meas_count >= measure_interval){
-			read_sensor(&temp,&humi);		
+			read_sensor(&temp,&humi);
 			temp += temp_offset;
 			humi += humi_offset;
 			meas_count=0;
-		
+
 			if((temp-last_temp > temp_alarm_point)||(last_temp-temp > temp_alarm_point)||(humi-last_humi > humi_alarm_point)||(last_humi-humi > humi_alarm_point)){// instant advertise on to much sensor difference
 				set_adv_data(temp, humi, battery_level, battery_mv);
 			}
 			last_temp = temp;
 			last_humi = humi;
-		}	
+		}
 		meas_count++;
-		
+
 		if(temp_C_or_F){
 			show_temp_symbol(2);
 			show_big_number(((((last_temp*10)/5)*9)+3200)/10,1);//convert C to F
@@ -105,17 +105,17 @@ void main_loop(){
 		}
 
 		if(!show_batt_enabled) show_batt_or_humi = true;
-		
+
 		if(show_batt_or_humi){//Change between Humidity displaying and battery level if show_batt_enabled=true
-			show_small_number(last_humi,1);	
-		    show_battery_symbol(0);   
+			show_small_number(last_humi,1);
+		    show_battery_symbol(0);
 		}else{
 			show_small_number((battery_level==100)?99:battery_level,1);
 			show_battery_symbol(1);
 		}
-		
+
 		show_batt_or_humi = !show_batt_or_humi;
-		
+
 		if(ble_get_connected()){//If connected notify Sensor data
 			ble_send_temp(last_temp);
 			ble_send_humi(last_humi);
@@ -130,7 +130,7 @@ void main_loop(){
 		    }
 		    adv_count++;
 		}
-		
+
 		if(comfort_smiley) {
 			if(is_comfort(last_temp * 10, last_humi * 100)){
 				show_smiley(1);
@@ -143,10 +143,10 @@ void main_loop(){
 		last_smiley=!last_smiley;
 		show_smiley(last_smiley);
 		}
-		
+
 		update_lcd();
 		last_delay = clock_time();
 	}
 	blt_sdk_main_loop();
-	blt_pm_proc();	
+	blt_pm_proc();
 }

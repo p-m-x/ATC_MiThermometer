@@ -85,7 +85,7 @@ The battery level will be shown on the LCD every 5-6secdonds indicated by the ba
 ### Advertising type:
 0xAE = Custom <- Default
 
-0xAF = Mi Like
+0xAF = Mi Like (Default for ATC_Thermometer_Custom.bin)
 
 ### Advertising interval
 byte0 0xFE
@@ -110,7 +110,7 @@ byte0 0xFC = temp_alarm_point // value divided by 10 for temp in °C
 
 byte0 0xFD = humi_alarm_point
 
-byte1 as int8_t 
+byte1 as int8_t
 
 Temp alarm from 0,1°C to 25,5°C Range <- 0,5°C Default
 
@@ -119,7 +119,7 @@ Humi alarm from 1% to 50% Range <- 5% Default
 ## Advertising format of the custom firmware:
 The custom firmware sends every minute an update of advertising data on the UUID 0x181A with the Tempereature, Humidity and Battery data.
 
-The format is like this: 
+The format is like this:
 
 Byte 5-10 mac in correct order
 
